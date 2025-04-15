@@ -1,5 +1,5 @@
 #include <stdio.h>
 
-int main(void) {
-	printf("Hello");
+int main(int argc, char *argv[]) {
+	printf("Number of arguments: %i\n", argc);
 }
