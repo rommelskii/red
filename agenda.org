@@ -1,0 +1,10 @@
+text file creator - red
+- makes text files
+- argument is the content
+- replace a line
+- add a line
+- delete files
+- create files
+
+command: 
+red -c/-u/-r/-d <file/text>
