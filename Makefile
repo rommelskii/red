@@ -1,1 +1,8 @@
-i dont know how to make a makefile yet
+main: src/main.c
+	gcc src/main.c -o bin/main
+
+test:
+	./bin/main
+
+clean:
+	rm -f bin/main
