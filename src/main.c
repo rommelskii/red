@@ -29,15 +29,22 @@ int parseFlag(const char *flag) {
 	return 1;
 }
 
+
+
 int main(int argc, char *argv[]) {
 	//housekeeping
 	const char flagBuf[FLAG_BUFFER_SIZE];
-	int arg_index = 1;
-	if ( (argc <= arg_index) ) {
+	if ( argc == 1 ) {
 		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n", argv[0]);
 		fprintf(stderr, "Error: missing flag index", argc);
 		return 1;
 	}
+	if ( argc == 2 ) {
+		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n", argv[0]);
+		fprintf(stderr, "Error: lacking arguments", argc);
+		return 1;
+	}
+	
 
 	const char *FLAG = argv[1];
 
