@@ -2,8 +2,10 @@
 <h3>primitive CLI-based file creator and editor</h3>
 
 <hr>
-<h3>Branch: create</h3>
-<p>This is for the create (-c) entry point of the program</p>
+<h3>Branch: main</h3>
+<li>+makefile</li>
+<li>+flag parser</li>
+<li>+create functinality</li>
 <hr>
 
 <p>April 18, 2025</p>
