@@ -53,12 +53,21 @@ int main(int argc, char *argv[]) {
 			fclose(pFile);
 			
 			pFile = fopen(FILE_NAME, "w");
+
+			if (pFile == NULL) { //check if file creation fails
+				perror("Failed to create file '%s'");
+				fclose(pFile);
+				return -1;
+			}
+
 			//check if there is content from argv
 			if (argc == 4) {
 				const char *CONTENT = argv[3];		
-				fputs(CONTENT, pFile);
-				fclose(pFile);
-				return 0;
+				if ( fputs(CONTENT, pFile) == EOF ) { // do fputs() and check if it fails
+					perror("Error writing content");
+					fclose(pFile);
+					return -1;
+				}
 			}
 
 			fclose(pFile);
