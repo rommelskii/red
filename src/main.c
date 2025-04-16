@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-
+#define FLAG_BUFFER_SIZE 2
 // -c -u -r -d
 // argv[] => <name> <flag (1)> <name/content (2)> <content (3)>
 
@@ -31,12 +31,15 @@ int parseFlag(const char *flag) {
 
 int main(int argc, char *argv[]) {
 	//housekeeping
-	const char *FLAG = argv[1];
-	if ( (argc < 3 || argc > 4) ) {
-		printf("Usage: red (-c -u -r) (file) (content)");
-		printf("\n");
+	const char flagBuf[FLAG_BUFFER_SIZE];
+	int arg_index = 1;
+	if ( (argc <= arg_index) ) {
+		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n", argv[0]);
+		fprintf(stderr, "Error: missing flag index", argc);
 		return 1;
 	}
+
+	const char *FLAG = argv[1];
 
 	//entry points
 	const int flagType = parseFlag(FLAG);
@@ -48,7 +51,7 @@ int main(int argc, char *argv[]) {
 			pFile = fopen(FILE_NAME, "r");
 			if ( pFile != NULL ) {
 				printf("File '%s' exists!\n", FILE_NAME);
-				return 1; // exit if found
+				return 1; 
 			}
 			fclose(pFile);
 			
@@ -59,7 +62,6 @@ int main(int argc, char *argv[]) {
 				fclose(pFile);
 				return 1;
 			}
-
 			//check if there is content from argv
 			if (argc == 4) {
 				const char *CONTENT = argv[3];		
