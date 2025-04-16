@@ -3,7 +3,9 @@
 
 
 // -c -u -r -d
-// argv[] => <name> <flag (1)> <content (2)>
+// argv[] => <name> <flag (1)> <name/content (2)> <content (3)>
+
+
 
 
 int parseFlag(const char *flag) {
@@ -39,9 +41,30 @@ int main(int argc, char *argv[]) {
 	//entry points
 	const int flagType = parseFlag(FLAG);
 	switch (flagType) {
-		case 0:
-			printf("-c detected");
+		case 0: {
+			//first check if there is an existing file
+			FILE *pFile;
+			const char *FILE_NAME = argv[2];
+			pFile = fopen(FILE_NAME, "r");
+			if ( pFile != NULL ) {
+				printf("File '%s' exists!\n", FILE_NAME);
+				return -1; // exit if found
+			}
+			fclose(pFile);
+			
+			pFile = fopen(FILE_NAME, "w");
+			//check if there is content from argv
+			if (argc == 4) {
+				const char *CONTENT = argv[3];		
+				fputs(CONTENT, pFile);
+				fclose(pFile);
+				return 0;
+			}
+
+			fclose(pFile);
+			return 0;
 			break;
+		}
 		case 1:
 			printf("-u detected");
 			break;
