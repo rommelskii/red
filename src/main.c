@@ -26,10 +26,8 @@ int parseFlag(const char *flag) {
 	}
 
 	// fallback to 1 if no valid flag
-	return 1;
+	return -1;
 }
-
-
 
 int main(int argc, char *argv[]) {
 	//housekeeping
@@ -45,11 +43,11 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	
-
+	//get extract flag
 	const char *FLAG = argv[1];
+	const int flagType = parseFlag(FLAG);
 
 	//entry points
-	const int flagType = parseFlag(FLAG);
 	switch (flagType) {
 		case 0: {
 			//first check if there is an existing file
