@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
 		case 2:
 			printf("-r detected");
 			break;
-		default:
+		case -1:
 			printf("invalid flag!");
 			break;
 	}
