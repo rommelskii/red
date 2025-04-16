@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[]) {
 	if ( argc != 2 ) {
-		printf("Usage: red <-c -u -r> <file> <content (for -u)>");
+		printf("Usage: red (-c -u -r) (file) (content)");
 		printf("\n");
 	}
 }
