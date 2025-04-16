@@ -28,6 +28,7 @@ int parseFlag(const char *flag) {
 }
 
 int main(int argc, char *argv[]) {
+	//housekeeping
 	const char *FLAG = argv[1];
 	if ( (argc < 3 || argc > 4) ) {
 		printf("Usage: red (-c -u -r) (file) (content)");
