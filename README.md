@@ -5,7 +5,7 @@
 <h3>Branch: main</h3>
 <li>+makefile</li>
 <li>+flag parser</li>
-<li>+create functinality</li>
+<li>+create functionality</li>
 <hr>
 
 <p>April 18, 2025</p>
