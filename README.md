@@ -18,7 +18,7 @@ works and how they are interfaced with hardware.
 </p>
 
 <p>
-This project serves as an introduction for me to C. After this, I plan on learn on 
+This project serves as an introduction for me to C. After this, I plan on learning  
 socket programming so that I can build my own server written in C.
 </p>
 
