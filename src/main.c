@@ -13,13 +13,13 @@ int parseFlag(const char *flag) {
 	argument/s: flag string from argv
 */
 	
-	if ( !strcmp(flag, "-c") ) {
+	if ( !strncmp(flag, "-c", 2) ) {
 		return 0;
 	}
-	if ( !strcmp(flag, "-u") ) {
+	if ( !strncmp(flag, "-u", 2) ) {
 		return 1;
 	}
-	if ( !strcmp(flag, "-r") ) {
+	if ( !strncmp(flag, "-r", 2) ) {
 		return 2;
 	}
 
