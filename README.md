@@ -2,8 +2,8 @@
 <h3>primitive CLI-based file creator and editor</h3>
 
 <hr>
-<h3>Branch: main</h3>
-<p>Wow a working makefile, i feel like a low level god</p>
+<h3>Branch: create</h3>
+<p>This is for the create (-c) entry point of the program</p>
 <hr>
 
 <p>April 18, 2025</p>

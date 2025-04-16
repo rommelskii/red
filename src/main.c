@@ -1,10 +1,79 @@
 #include <stdio.h>
 #include <string.h>
 
+int parseFlag(const char *flag);
 
-// -c -u -r -d
-// argv[] => <name> <flag (1)> <content (2)>
+int main(int argc, char *argv[]) {
+	//housekeeping
+	const size_t FLAG_BUFFER_SIZE = 3;
+	const int FLAG_INDEX;
+	if ( argc == 1 ) {
+		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n");
+		fprintf(stderr, "Error: missing flag index");
+		return 1;
+	}
+	if ( argc == 2 ) {
+		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n");
+		fprintf(stderr, "Error: lacking arguments");
+		return 1;
+	}
+	if ( argc > 5 ) {
+		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n");
+		fprintf(stderr, "Error: too many arguments");
+		return 1;
+	}
 
+	//get extract flag
+	const char flagBuf[FLAG_BUFFER_SIZE];
+	strncpy(flagBuf, argv[FLAG_INDEX], FLAG_BUFFER_SIZE - 1);
+	const int flagType = parseFlag(flagBuf);
+
+	//entry points
+	switch (flagType) {
+		case 0: {
+			//first check if there is an existing file
+			FILE *pFile;
+			const char *FILE_NAME = argv[2];
+			pFile = fopen(FILE_NAME, "r");
+			if ( pFile != NULL ) {
+				printf("File '%s' exists!\n", FILE_NAME);
+				return 1; 
+			}
+			fclose(pFile);
+			
+			pFile = fopen(FILE_NAME, "w");
+
+			if (pFile == NULL) { //check if file creation fails
+				perror("Failed to create file '%s'");
+				fclose(pFile);
+				return 1;
+			}
+			//check if there is content from argv
+			if (argc == 4) {
+				const char *CONTENT = argv[3];		
+				if ( fputs(CONTENT, pFile) == EOF ) { // do fputs() and check if it fails
+					perror("Error writing content");
+					fclose(pFile);
+					return 1;
+				}
+			}
+
+			fclose(pFile);
+			return 0;
+			break;
+		}
+		case 1:
+			printf("-u detected");
+			break;
+		case 2:
+			printf("-r detected");
+			break;
+		case -1:
+			printf("invalid flag!");
+			break;
+	}
+	return 0;	
+}
 
 int parseFlag(const char *flag) {
 /*
@@ -23,34 +92,6 @@ int parseFlag(const char *flag) {
 		return 2;
 	}
 
-	// fallback to -1 if no valid flag
+	// fallback to 1 if no valid flag
 	return -1;
-}
-
-int main(int argc, char *argv[]) {
-	//housekeeping
-	const char *FLAG = argv[1];
-	if ( (argc < 3 || argc > 4) ) {
-		printf("Usage: red (-c -u -r) (file) (content)");
-		printf("\n");
-		return -1;
-	}
-
-	//entry points
-	const int flagType = parseFlag(FLAG);
-	switch (flagType) {
-		case 0:
-			printf("-c detected");
-			break;
-		case 1:
-			printf("-u detected");
-			break;
-		case 2:
-			printf("-r detected");
-			break;
-		default:
-			printf("invalid flag!");
-			break;
-	}
-	return 0;	
 }
