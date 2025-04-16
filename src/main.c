@@ -25,8 +25,8 @@ int parseFlag(const char *flag) {
 		return 2;
 	}
 
-	// fallback to -1 if no valid flag
-	return -1;
+	// fallback to 1 if no valid flag
+	return 1;
 }
 
 int main(int argc, char *argv[]) {
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 	if ( (argc < 3 || argc > 4) ) {
 		printf("Usage: red (-c -u -r) (file) (content)");
 		printf("\n");
-		return -1;
+		return 1;
 	}
 
 	//entry points
@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
 			pFile = fopen(FILE_NAME, "r");
 			if ( pFile != NULL ) {
 				printf("File '%s' exists!\n", FILE_NAME);
-				return -1; // exit if found
+				return 1; // exit if found
 			}
 			fclose(pFile);
 			
@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 			if (pFile == NULL) { //check if file creation fails
 				perror("Failed to create file '%s'");
 				fclose(pFile);
-				return -1;
+				return 1;
 			}
 
 			//check if there is content from argv
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
 				if ( fputs(CONTENT, pFile) == EOF ) { // do fputs() and check if it fails
 					perror("Error writing content");
 					fclose(pFile);
-					return -1;
+					return 1;
 				}
 			}
 
