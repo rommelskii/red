@@ -8,7 +8,7 @@
 <li>+create functionality</li>
 <hr>
 
-<p>April 18, 2025</p>
+<p>April 15, 2025</p>
 
 <p>
 This was a project that I thought of for learning C. Although
