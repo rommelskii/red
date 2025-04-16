@@ -1,51 +1,32 @@
 #include <stdio.h>
 #include <string.h>
 
-#define FLAG_BUFFER_SIZE 2
-// -c -u -r -d
-// argv[] => <name> <flag (1)> <name/content (2)> <content (3)>
-
-
-
-
-int parseFlag(const char *flag) {
-/*
-	parseFlag: returns corresponding flag type given flag string from argv
-
-	argument/s: flag string from argv
-*/
-	
-	if ( !strncmp(flag, "-c", 2) ) {
-		return 0;
-	}
-	if ( !strncmp(flag, "-u", 2) ) {
-		return 1;
-	}
-	if ( !strncmp(flag, "-r", 2) ) {
-		return 2;
-	}
-
-	// fallback to 1 if no valid flag
-	return -1;
-}
+int parseFlag(const char *flag);
 
 int main(int argc, char *argv[]) {
 	//housekeeping
-	const char flagBuf[FLAG_BUFFER_SIZE];
+	const size_t FLAG_BUFFER_SIZE = 3;
+	const int FLAG_INDEX;
 	if ( argc == 1 ) {
-		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n", argv[0]);
-		fprintf(stderr, "Error: missing flag index", argc);
+		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n");
+		fprintf(stderr, "Error: missing flag index");
 		return 1;
 	}
 	if ( argc == 2 ) {
-		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n", argv[0]);
-		fprintf(stderr, "Error: lacking arguments", argc);
+		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n");
+		fprintf(stderr, "Error: lacking arguments");
 		return 1;
 	}
-	
+	if ( argc > 5 ) {
+		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n");
+		fprintf(stderr, "Error: too many arguments");
+		return 1;
+	}
+
 	//get extract flag
-	const char *FLAG = argv[1];
-	const int flagType = parseFlag(FLAG);
+	const char flagBuf[FLAG_BUFFER_SIZE];
+	strncpy(flagBuf, argv[FLAG_INDEX], FLAG_BUFFER_SIZE - 1);
+	const int flagType = parseFlag(flagBuf);
 
 	//entry points
 	switch (flagType) {
@@ -92,4 +73,25 @@ int main(int argc, char *argv[]) {
 			break;
 	}
 	return 0;	
+}
+
+int parseFlag(const char *flag) {
+/*
+	parseFlag: returns corresponding flag type given flag string from argv
+
+	argument/s: flag string from argv
+*/
+	
+	if ( !strncmp(flag, "-c", 2) ) {
+		return 0;
+	}
+	if ( !strncmp(flag, "-u", 2) ) {
+		return 1;
+	}
+	if ( !strncmp(flag, "-r", 2) ) {
+		return 2;
+	}
+
+	// fallback to 1 if no valid flag
+	return -1;
 }
