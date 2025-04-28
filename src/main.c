@@ -85,8 +85,8 @@ int main(int argc, char *argv[]) {
 			const size_t WRITE_MAX_SIZE = 2048 * 5;
 			const size_t UPDATE_MAX_SIZE = 2048 * 5;
 			const size_t FILE_NAME_INDEX = 2;
-			const size_t LINE_NUMBER_INDEX = 4;
-			const size_t CONTENT_INDEX = 5;
+			const size_t LINE_NUMBER_INDEX = 3;
+			const size_t CONTENT_INDEX = 4;
 			const char* FILE_NAME = argv[FILE_NAME_INDEX];
 			char write_buf[WRITE_MAX_SIZE];
 			char update_buf[WRITE_MAX_SIZE];
@@ -106,8 +106,12 @@ int main(int argc, char *argv[]) {
 				return 1;
 			}
 
-			target_line = parseLineNumber(argv);
-			strncpy(update_buf, parseContent(argv), sizeof(update_buf));
+			printf("Success creating both reference and input\n");
+
+			target_line = atol( argv[LINE_NUMBER_INDEX] );
+			strncpy(update_buf, argv[CONTENT_INDEX], sizeof(update_buf));
+			printf("Line extracted: %s\n", update_buf);
+			printf("Target line: %lu\n", atol(argv[3]));
 
 			while ( fgets(write_buf, sizeof(write_buf), referenceFile) != NULL ) {
 				if (current_line == target_line) {
@@ -116,6 +120,7 @@ int main(int argc, char *argv[]) {
 						is_success = 0;
 						break;
 					}
+					break;
 				} else {
 					if ( fputs(write_buf, temporaryFile) < 0 ) {
 						fprintf(stderr, "Error: error writing to '%s'", FILE_NAME);
@@ -123,22 +128,23 @@ int main(int argc, char *argv[]) {
 						break;
 					}
 				}
+				printf("%i\n", current_line);
 				current_line++;
 			}
 
 			if ( feof(referenceFile) ) {
-				//continue incrementing
-				while ( current_line != target_line ) {
+				//continue incrementing and add padding until before target line is reached
+				while ( current_line < target_line ) {
 					fprintf(temporaryFile, "\n");
 					current_line++;
+					//printf("%i\n", current_line);
 				}
-				fprintf(temporaryFile, "%s\n", update_buf);
-			} else {
-				is_success = 0;
+				fprintf(temporaryFile, "%s", update_buf);
+			} else if (is_success == 0) {
 				fprintf(stderr, "Error: cannot write to file");
 			}
 
-			if (is_success) {
+			if (is_success == 1) {
 				fclose(referenceFile);
 				fclose(temporaryFile);
 				fprintf(stdout, "Success: wrote %lu", sizeof(temporaryFile));
@@ -185,14 +191,19 @@ int parseFlag(const char *flag) {
 
 long int parseLineNumber(char *argv[]) {
 	const size_t MAX_BUFFER_SIZE = 7; // 7 character long number
-	const size_t LINE_NUMBER_INDEX = 4;
+	const size_t LINE_NUMBER_INDEX = 3;
 
 	char buf[MAX_BUFFER_SIZE];
+	printf("%s\n", argv[1]);
 	
+	/*
 	if ( sizeof(argv[LINE_NUMBER_INDEX]) > MAX_BUFFER_SIZE ) {
 		fprintf(stderr, "Error: maximum lines reached");
 		return 1;
 	}
+	*/
+
+	printf("%s", argv[0]);
 
 
 	strncpy(buf, argv[LINE_NUMBER_INDEX], MAX_BUFFER_SIZE);
