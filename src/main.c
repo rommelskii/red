@@ -3,13 +3,15 @@
 #include <string.h>
 
 int parseFlag(const char *flag);
+long int parseLineNumber(char *argv[]);
+char *parseContent(char *argv[]);
 
 int main(int argc, char *argv[]) {
 	//housekeeping
 	const size_t FLAG_BUFFER_SIZE = 3;
 	const size_t CONTENT_BUFFER_SIZE = 2048;
 	const size_t MAX_UPDATE_SIZE = 2048;
-	const int FLAG_INDEX;
+	const int FLAG_INDEX = 1;
 	if ( argc == 1 ) {
 		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n");
 		fprintf(stderr, "Error: missing flag index");
@@ -66,7 +68,88 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 		case 1: {
-			printf("-u detected");
+			//check if arguments are good
+			//check if file exists
+			//create dummy file
+			//loop until current line = target_line or EOF is reached
+			//if target_line reached, replace with buffer; otherwise continue looping until target_line
+			// is reached
+			
+			if ( argc < 5 ) {
+				fprintf(stderr, "Error: incomplete fields");
+				return 1;
+			}
+
+			FILE *referenceFile;
+			FILE *temporaryFile;
+			const size_t WRITE_MAX_SIZE = 2048 * 5;
+			const size_t UPDATE_MAX_SIZE = 2048 * 5;
+			const size_t FILE_NAME_INDEX = 2;
+			const size_t LINE_NUMBER_INDEX = 4;
+			const size_t CONTENT_INDEX = 5;
+			const char* FILE_NAME = argv[FILE_NAME_INDEX];
+			char write_buf[WRITE_MAX_SIZE];
+			char update_buf[WRITE_MAX_SIZE];
+			int current_line = 0;
+			long int target_line = 0;
+			int is_success = 1;
+
+			referenceFile = fopen(FILE_NAME, "r");	 // check if file exists
+			if (referenceFile == NULL) {
+				fprintf(stderr, "Error: '%s' does not exist!", FILE_NAME);
+				return 1;
+			}
+
+			temporaryFile = fopen("temp.txt", "w");
+			if (temporaryFile == NULL) {
+				fprintf(stderr, "Error: cannot write temporary file");
+				return 1;
+			}
+
+			target_line = parseLineNumber(argv);
+			strncpy(update_buf, parseContent(argv), sizeof(update_buf));
+
+			while ( fgets(write_buf, sizeof(write_buf), referenceFile) != NULL ) {
+				if (current_line == target_line) {
+					if ( fputs(update_buf, temporaryFile) < 0 ) {
+						fprintf(stderr, "Error: error writing to '%s'", FILE_NAME);
+						is_success = 0;
+						break;
+					}
+				} else {
+					if ( fputs(write_buf, temporaryFile) < 0 ) {
+						fprintf(stderr, "Error: error writing to '%s'", FILE_NAME);
+						is_success = 0;
+						break;
+					}
+				}
+				current_line++;
+			}
+
+			if ( feof(referenceFile) ) {
+				//continue incrementing
+				while ( current_line != target_line ) {
+					fprintf(temporaryFile, "\n");
+					current_line++;
+				}
+				fprintf(temporaryFile, "%s\n", update_buf);
+			} else {
+				is_success = 0;
+				fprintf(stderr, "Error: cannot write to file");
+			}
+
+			if (is_success) {
+				fclose(referenceFile);
+				fclose(temporaryFile);
+				fprintf(stdout, "Success: wrote %lu", sizeof(temporaryFile));
+				return 0;
+			} else {
+				fclose(referenceFile);
+				fclose(temporaryFile);
+				fprintf(stdout, "Error has occured");
+				return 1;	
+			}
+
 			break;
 		}
 		case 2:
@@ -98,4 +181,40 @@ int parseFlag(const char *flag) {
 
 	// fallback to 1 if no valid flag
 	return -1;
+}
+
+long int parseLineNumber(char *argv[]) {
+	const size_t MAX_BUFFER_SIZE = 7; // 7 character long number
+	const size_t LINE_NUMBER_INDEX = 4;
+
+	char buf[MAX_BUFFER_SIZE];
+	
+	if ( sizeof(argv[LINE_NUMBER_INDEX]) > MAX_BUFFER_SIZE ) {
+		fprintf(stderr, "Error: maximum lines reached");
+		return 1;
+	}
+
+
+	strncpy(buf, argv[LINE_NUMBER_INDEX], MAX_BUFFER_SIZE);
+	//buf = argv[LINE_NUMBER_INDEX];
+
+	return atol(buf);
+}
+
+char *parseContent(char *argv[]) {
+	const size_t MAX_BUFFER_SIZE = 2048 * 5; // 7 character long number
+	const size_t CONTENT_INDEX = 5;
+
+	char buf[MAX_BUFFER_SIZE];
+	
+
+	
+	if ( sizeof(argv[CONTENT_INDEX]) > MAX_BUFFER_SIZE ) {
+		fprintf(stderr, "Error: maximum characters reached");
+		return NULL;
+	}
+
+	strncpy(buf, argv[CONTENT_INDEX], MAX_BUFFER_SIZE);
+
+	return argv[CONTENT_INDEX];
 }
