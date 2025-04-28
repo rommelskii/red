@@ -87,6 +87,7 @@ int main(int argc, char *argv[]) {
 			const size_t FILE_NAME_INDEX = 2;
 			const size_t LINE_NUMBER_INDEX = 3;
 			const size_t CONTENT_INDEX = 4;
+			size_t total_size = 0;
 			const char* FILE_NAME = argv[FILE_NAME_INDEX];
 			char write_buf[WRITE_MAX_SIZE];
 			char update_buf[WRITE_MAX_SIZE];
@@ -106,12 +107,8 @@ int main(int argc, char *argv[]) {
 				return 1;
 			}
 
-			printf("Success creating both reference and input\n");
-
 			target_line = atol( argv[LINE_NUMBER_INDEX] );
 			strncpy(update_buf, argv[CONTENT_INDEX], sizeof(update_buf));
-			printf("Line extracted: %s\n", update_buf);
-			printf("Target line: %lu\n", atol(argv[3]));
 
 			while ( fgets(write_buf, sizeof(write_buf), referenceFile) != NULL ) {
 				if (current_line == target_line) {
@@ -120,6 +117,7 @@ int main(int argc, char *argv[]) {
 						is_success = 0;
 						break;
 					}
+					total_size = total_size + strlen(update_buf);
 					break;
 				} else {
 					if ( fputs(write_buf, temporaryFile) < 0 ) {
@@ -127,8 +125,8 @@ int main(int argc, char *argv[]) {
 						is_success = 0;
 						break;
 					}
+					total_size = total_size + strlen(write_buf);
 				}
-				printf("%i\n", current_line);
 				current_line++;
 			}
 
@@ -137,9 +135,9 @@ int main(int argc, char *argv[]) {
 				while ( current_line < target_line ) {
 					fprintf(temporaryFile, "\n");
 					current_line++;
-					//printf("%i\n", current_line);
 				}
 				fprintf(temporaryFile, "%s", update_buf);
+				total_size = total_size + strlen(update_buf);
 			} else if (is_success == 0) {
 				fprintf(stderr, "Error: cannot write to file");
 			}
@@ -147,12 +145,12 @@ int main(int argc, char *argv[]) {
 			if (is_success == 1) {
 				fclose(referenceFile);
 				fclose(temporaryFile);
-				fprintf(stdout, "Success: wrote %lu", sizeof(temporaryFile));
+				fprintf(stdout, "success: wrote %zu bytes!\n", total_size);
 				return 0;
 			} else {
 				fclose(referenceFile);
 				fclose(temporaryFile);
-				fprintf(stdout, "Error has occured");
+				fprintf(stdout, "Error has occured\n");
 				return 1;	
 			}
 
