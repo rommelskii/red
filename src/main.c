@@ -3,8 +3,6 @@
 #include <string.h>
 
 int parseFlag(const char *flag);
-long int parseLineNumber(char *argv[]);
-char *parseContent(char *argv[]);
 
 int main(int argc, char *argv[]) {
 	//housekeeping
@@ -91,6 +89,7 @@ int main(int argc, char *argv[]) {
 			const char* FILE_NAME = argv[FILE_NAME_INDEX];
 			char write_buf[WRITE_MAX_SIZE];
 			char update_buf[WRITE_MAX_SIZE];
+			char *temporary_filename[2048];
 			int current_line = 0;
 			long int target_line = 0;
 			int is_success = 1;
@@ -100,6 +99,8 @@ int main(int argc, char *argv[]) {
 				fprintf(stderr, "Error: '%s' does not exist!", FILE_NAME);
 				return 1;
 			}
+
+			strncpy(temporary_filename, "temp.txt", sizeof(temporary_filename));
 
 			temporaryFile = fopen("temp.txt", "w");
 			if (temporaryFile == NULL) {
@@ -143,6 +144,10 @@ int main(int argc, char *argv[]) {
 			}
 
 			if (is_success == 1) {
+				if ( (remove(FILE_NAME) != 0) ||  (rename(temporary_filename, FILE_NAME) != 0) ) {
+					fprintf(stderr, "Error: failed to overwrite '%s'", FILE_NAME);
+					return 1; 	
+				}
 				fclose(referenceFile);
 				fclose(temporaryFile);
 				fprintf(stdout, "success: wrote %zu bytes!\n", total_size);
@@ -185,45 +190,4 @@ int parseFlag(const char *flag) {
 
 	// fallback to 1 if no valid flag
 	return -1;
-}
-
-long int parseLineNumber(char *argv[]) {
-	const size_t MAX_BUFFER_SIZE = 7; // 7 character long number
-	const size_t LINE_NUMBER_INDEX = 3;
-
-	char buf[MAX_BUFFER_SIZE];
-	printf("%s\n", argv[1]);
-	
-	/*
-	if ( sizeof(argv[LINE_NUMBER_INDEX]) > MAX_BUFFER_SIZE ) {
-		fprintf(stderr, "Error: maximum lines reached");
-		return 1;
-	}
-	*/
-
-	printf("%s", argv[0]);
-
-
-	strncpy(buf, argv[LINE_NUMBER_INDEX], MAX_BUFFER_SIZE);
-	//buf = argv[LINE_NUMBER_INDEX];
-
-	return atol(buf);
-}
-
-char *parseContent(char *argv[]) {
-	const size_t MAX_BUFFER_SIZE = 2048 * 5; // 7 character long number
-	const size_t CONTENT_INDEX = 5;
-
-	char buf[MAX_BUFFER_SIZE];
-	
-
-	
-	if ( sizeof(argv[CONTENT_INDEX]) > MAX_BUFFER_SIZE ) {
-		fprintf(stderr, "Error: maximum characters reached");
-		return NULL;
-	}
-
-	strncpy(buf, argv[CONTENT_INDEX], MAX_BUFFER_SIZE);
-
-	return argv[CONTENT_INDEX];
 }
