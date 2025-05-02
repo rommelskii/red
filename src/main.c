@@ -66,99 +66,76 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 		case 1: {
-			//check if arguments are good
-			//check if file exists
-			//create dummy file
-			//loop until current line = target_line or EOF is reached
-			//if target_line reached, replace with buffer; otherwise continue looping until target_line
-			// is reached
-			
-			if ( argc < 5 ) {
-				fprintf(stderr, "Error: incomplete fields");
-				return 1;
-			}
+			// red -u hello.txt 0 wow
+			// 0    1      2    3   4
+			FILE *tempFile;	
+			FILE *readFile;
 
-			FILE *referenceFile;
-			FILE *temporaryFile;
-			const size_t WRITE_MAX_SIZE = 2048 * 5;
-			const size_t UPDATE_MAX_SIZE = 2048 * 5;
-			const size_t FILE_NAME_INDEX = 2;
+			const size_t UPDATE_STRING_INDEX = 4;
 			const size_t LINE_NUMBER_INDEX = 3;
-			const size_t CONTENT_INDEX = 4;
-			size_t total_size = 0;
-			const char* FILE_NAME = argv[FILE_NAME_INDEX];
-			char write_buf[WRITE_MAX_SIZE];
-			char update_buf[WRITE_MAX_SIZE];
-			char *temporary_filename[2048];
-			int current_line = 0;
-			long int target_line = 0;
-			int is_success = 1;
+			const size_t MAX_BUFFER_LENGTH = 2048;
+			const size_t MAX_LINE_NUMBER_LENGTH = 9;
+			
+			char *update_buffer; 
+			char *line_buffer; 
+			unsigned long line_number;
 
-			referenceFile = fopen(FILE_NAME, "r");	 // check if file exists
-			if (referenceFile == NULL) {
-				fprintf(stderr, "Error: '%s' does not exist!", FILE_NAME);
+			const char* UPDATE_STRING = argv[UPDATE_STRING_INDEX];
+			const char* LINE_NUMBER_STRING = argv[LINE_NUMBER_INDEX];
+			const size_t UPDATE_STRING_LENGTH = strlen(UPDATE_STRING);
+			const size_t LINE_NUMBER_LENGTH = strlen(LINE_NUMBER_STRING);
+
+			if ( UPDATE_STRING_LENGTH > MAX_BUFFER_LENGTH ) {
+				fprintf(stderr, "Error: max content buffer length reached");
+				return 1;
+			}
+			if ( LINE_NUMBER_LENGTH > MAX_LINE_NUMBER_LENGTH ) {
+				fprintf(stderr, "Error: max line buffer length reached");
 				return 1;
 			}
 
-			strncpy(temporary_filename, "temp.txt", sizeof(temporary_filename));
+			//allocate sizes to buffers
+			update_buffer = (char *)malloc(UPDATE_STRING_LENGTH * sizeof(char));
+			line_buffer = (char *)malloc(LINE_NUMBER_LENGTH * sizeof(char));
 
-			temporaryFile = fopen("temp.txt", "w");
-			if (temporaryFile == NULL) {
-				fprintf(stderr, "Error: cannot write temporary file");
+			line_number = atol(line_buffer);
+
+
+			strncpy(update_buffer, UPDATE_STRING, strlen(argv[UPDATE_STRING_INDEX]));
+			strncpy(line_buffer, LINE_NUMBER_STRING, strlen(argv[LINE_NUMBER_INDEX]));
+
+			printf("DEBUG: update_buffer, line_buffer, line_number = ");
+			printf("(%s,%s,%lu)\n", update_buffer, line_buffer, line_number);
+
+			/*
+
+			if ( argc != 5 ) {
+				fprintf(stderr, "error: lacking parameters");
 				return 1;
 			}
 
-			target_line = atol( argv[LINE_NUMBER_INDEX] );
-			strncpy(update_buf, argv[CONTENT_INDEX], sizeof(update_buf));
-
-			while ( fgets(write_buf, sizeof(write_buf), referenceFile) != NULL ) {
-				if (current_line == target_line) {
-					if ( fputs(update_buf, temporaryFile) < 0 ) {
-						fprintf(stderr, "Error: error writing to '%s'", FILE_NAME);
-						is_success = 0;
-						break;
-					}
-					total_size = total_size + strlen(update_buf);
-					break;
-				} else {
-					if ( fputs(write_buf, temporaryFile) < 0 ) {
-						fprintf(stderr, "Error: error writing to '%s'", FILE_NAME);
-						is_success = 0;
-						break;
-					}
-					total_size = total_size + strlen(write_buf);
-				}
-				current_line++;
+			if ( sizeof(argv[UPDATE_STRING_INDEX]) == 0 ) {
+				fprintf(stderr, "error: please provide a valid update string to line");
+				return 1;
+			} else if ( sizeof(argv[UPDATE_STRING_INDEX]) > MAX_BUFFER_SIZE ) {
+				fprintf(stderr, "error: update string limit reached");
+				return 1;
 			}
 
-			if ( feof(referenceFile) ) {
-				//continue incrementing and add padding until before target line is reached
-				while ( current_line < target_line ) {
-					fprintf(temporaryFile, "\n");
-					current_line++;
-				}
-				fprintf(temporaryFile, "%s", update_buf);
-				total_size = total_size + strlen(update_buf);
-			} else if (is_success == 0) {
-				fprintf(stderr, "Error: cannot write to file");
+			if ( sizeof(argv[LINE_NUMBER_INDEX]) == 0 ) {
+				fprintf(stderr, "error: please provide a valid line number");
+				return 1;
+			} else if ( sizeof(argv[LINE_NUMBER_INDEX]) > MAX_LINE_NUMBER ) {
+				fprintf(stderr, "error: line number limit reached");
+				return 1;
 			}
 
-			if (is_success == 1) {
-				if ( (remove(FILE_NAME) != 0) ||  (rename(temporary_filename, FILE_NAME) != 0) ) {
-					fprintf(stderr, "Error: failed to overwrite '%s'", FILE_NAME);
-					return 1; 	
-				}
-				fclose(referenceFile);
-				fclose(temporaryFile);
-				fprintf(stdout, "success: wrote %zu bytes!\n", total_size);
-				return 0;
-			} else {
-				fclose(referenceFile);
-				fclose(temporaryFile);
-				fprintf(stdout, "Error has occured\n");
-				return 1;	
-			}
 
+
+
+			strncpy(update_buffer, argv[UPDATE_STRING_INDEX], MAX_BUFFER_SIZE);
+			strncpy(line_buffer, argv[LINE_NUMBER_INDEX], MAX_LINE_NUMBER);
+			*/
 			break;
 		}
 		case 2:
