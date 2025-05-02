@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define BASE_10 10
+
 int parseFlag(const char *flag);
 
 int main(int argc, char *argv[]) {
@@ -68,23 +70,32 @@ int main(int argc, char *argv[]) {
 		case 1: {
 			// red -u hello.txt 0 wow
 			// 0    1      2    3   4
-			FILE *tempFile;	
+			FILE *writeFile;	
 			FILE *readFile;
 
 			const size_t UPDATE_STRING_INDEX = 4;
 			const size_t LINE_NUMBER_INDEX = 3;
+			const size_t FILE_NAME_INDEX = 2; 
 			const size_t MAX_BUFFER_LENGTH = 2048;
 			const size_t MAX_LINE_NUMBER_LENGTH = 9;
-			
-			char *update_buffer; 
-			char *line_buffer; 
-			unsigned long line_number;
 
 			const char* UPDATE_STRING = argv[UPDATE_STRING_INDEX];
 			const char* LINE_NUMBER_STRING = argv[LINE_NUMBER_INDEX];
+			const char* FILE_NAME = argv[FILE_NAME_INDEX];
 			const size_t UPDATE_STRING_LENGTH = strlen(UPDATE_STRING);
 			const size_t LINE_NUMBER_LENGTH = strlen(LINE_NUMBER_STRING);
+			
+			char *write_buffer;
+			char *update_buffer; 
+			char *line_buffer; 
+			char *temporary_filename = "temp.txt";
+			char *endptr;
+			unsigned long line_number;
+			unsigned long current_line = 0;
 
+
+
+			// guards against buffer lengths
 			if ( UPDATE_STRING_LENGTH > MAX_BUFFER_LENGTH ) {
 				fprintf(stderr, "Error: max content buffer length reached");
 				return 1;
@@ -95,47 +106,47 @@ int main(int argc, char *argv[]) {
 			}
 
 			//allocate sizes to buffers
+			write_buffer = (char *)malloc(MAX_BUFFER_LENGTH * sizeof(char));
 			update_buffer = (char *)malloc(UPDATE_STRING_LENGTH * sizeof(char));
 			line_buffer = (char *)malloc(LINE_NUMBER_LENGTH * sizeof(char));
 
-			line_number = atol(line_buffer);
 
-
+			//copy arguments to respective buffers
 			strncpy(update_buffer, UPDATE_STRING, strlen(argv[UPDATE_STRING_INDEX]));
 			strncpy(line_buffer, LINE_NUMBER_STRING, strlen(argv[LINE_NUMBER_INDEX]));
 
+			line_number = strtoul(line_buffer, &endptr, 10); //transform line buffer to line number
+									 //
 			printf("DEBUG: update_buffer, line_buffer, line_number = ");
 			printf("(%s,%s,%lu)\n", update_buffer, line_buffer, line_number);
 
-			/*
+			//file I/O
+			readFile = fopen(FILE_NAME, "r");
+			writeFile = fopen(temporary_filename, "w");
 
-			if ( argc != 5 ) {
-				fprintf(stderr, "error: lacking parameters");
+			if ( readFile == NULL ) {
+				fprintf(stderr, "Error: %s not found", FILE_NAME);
+				return 1;
+			}
+			if ( writeFile == NULL ) {
+				fprintf(stderr, "Error: error creating temp file");
 				return 1;
 			}
 
-			if ( sizeof(argv[UPDATE_STRING_INDEX]) == 0 ) {
-				fprintf(stderr, "error: please provide a valid update string to line");
-				return 1;
-			} else if ( sizeof(argv[UPDATE_STRING_INDEX]) > MAX_BUFFER_SIZE ) {
-				fprintf(stderr, "error: update string limit reached");
-				return 1;
+			//begin line extraction
+			while (
+				fgets(write_buffer, sizeof(write_buffer) - 1, readFile)
+			      )
+			{ 
+				if (current_line == line_number) {
+					fprintf(writeFile, "%s\n", write_buffer);
+					printf("Line number reached: %lu\n", current_line);
+				} else {
+					fputs(write_buffer, writeFile);
+				}
+				current_line++;
 			}
 
-			if ( sizeof(argv[LINE_NUMBER_INDEX]) == 0 ) {
-				fprintf(stderr, "error: please provide a valid line number");
-				return 1;
-			} else if ( sizeof(argv[LINE_NUMBER_INDEX]) > MAX_LINE_NUMBER ) {
-				fprintf(stderr, "error: line number limit reached");
-				return 1;
-			}
-
-
-
-
-			strncpy(update_buffer, argv[UPDATE_STRING_INDEX], MAX_BUFFER_SIZE);
-			strncpy(line_buffer, argv[LINE_NUMBER_INDEX], MAX_LINE_NUMBER);
-			*/
 			break;
 		}
 		case 2:
@@ -168,3 +179,4 @@ int parseFlag(const char *flag) {
 	// fallback to 1 if no valid flag
 	return -1;
 }
+
