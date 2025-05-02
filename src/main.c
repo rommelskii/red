@@ -68,35 +68,33 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 		case 1: {
-			// red -u hello.txt 0 wow
-			// 0    1      2    3   4
-			FILE *writeFile;	
-			FILE *readFile;
+			FILE 		*writeFile;	
+			FILE 		*readFile;
 
-			const size_t UPDATE_STRING_INDEX = 4;
-			const size_t LINE_NUMBER_INDEX = 3;
-			const size_t FILE_NAME_INDEX = 2; 
-			const size_t MAX_BUFFER_LENGTH = 2048;
-			const size_t MAX_LINE_NUMBER_LENGTH = 9;
+			const size_t 	UPDATE_STRING_INDEX = 4;
+			const size_t 	LINE_NUMBER_INDEX = 3;
+			const size_t 	FILE_NAME_INDEX = 2; 
+			const size_t 	MAX_BUFFER_LENGTH = 2048;
+			const size_t 	MAX_LINE_NUMBER_LENGTH = 9;
 
-			const char* UPDATE_STRING = argv[UPDATE_STRING_INDEX];
-			const char* LINE_NUMBER_STRING = argv[LINE_NUMBER_INDEX];
-			const char* FILE_NAME = argv[FILE_NAME_INDEX];
-			const size_t UPDATE_STRING_LENGTH = strlen(UPDATE_STRING);
-			const size_t LINE_NUMBER_LENGTH = strlen(LINE_NUMBER_STRING);
+			const char* 	UPDATE_STRING = argv[UPDATE_STRING_INDEX];
+			const char* 	LINE_NUMBER_STRING = argv[LINE_NUMBER_INDEX];
+			const char* 	FILE_NAME = argv[FILE_NAME_INDEX];
+			const size_t 	UPDATE_STRING_LENGTH = strlen(UPDATE_STRING);
+			const size_t 	LINE_NUMBER_LENGTH = strlen(LINE_NUMBER_STRING);
 			
-			char *write_buffer;
-			char *update_buffer; 
-			char *line_buffer; 
-			char *temporary_filename = "temp.txt";
-			char *endptr;
-			int success_flag = 1; 
-			unsigned long line_number;
-			unsigned long current_line = 0;
+			char 		*write_buffer;
+			char 		*update_buffer; 
+			char 		*line_buffer; 
+			char 		*temporary_filename = "temp.txt";
+			char 		*endptr;
+			int 		 success_flag = 0; 
+			unsigned long    line_number;
+			unsigned long 	 current_line = 0;
 
 
 
-			// guards against buffer lengths
+			//buffer length checks
 			if ( UPDATE_STRING_LENGTH > MAX_BUFFER_LENGTH ) {
 				fprintf(stderr, "Error: max content buffer length reached");
 				return 1;
@@ -118,8 +116,7 @@ int main(int argc, char *argv[]) {
 
 			line_number = strtoul(line_buffer, &endptr, 10); //transform line buffer to line number
 									 //
-			printf("DEBUG: update_buffer, line_buffer, line_number = ");
-			printf("(%s,%s,%lu)\n", update_buffer, line_buffer, line_number);
+			printf("(Update buffer: %s, Line buffer: %s, Line number: %lu)\n", update_buffer, line_buffer, line_number);
 
 			//file I/O
 			readFile = fopen(FILE_NAME, "r");
@@ -136,43 +133,32 @@ int main(int argc, char *argv[]) {
 
 			//begin line extraction
 			while (
-				fgets(write_buffer, sizeof(write_buffer) - 1, readFile)
+				fgets(write_buffer, sizeof(write_buffer), readFile)
 			      )
 			{ 
 				if (current_line == line_number) {
-					fprintf(writeFile, "%s\n", write_buffer);
 					printf("Line number reached: %lu\n", current_line);
+					fputs(update_buffer, writeFile);
+					success_flag = 1;
 				} else {
 					fputs(write_buffer, writeFile);
 				}
 				current_line++;
 			}
 
-			printf("DONE ITERATING\nDEBUG: current_line: %lu\n", current_line);
-
-			if ( feof(readFile) ) {
-				if (current_line < line_number) {
-					//add padding until line is reached
-					while ( current_line < line_number ) { 
-						fprintf(writeFile, "\n");
+			// success flag is used to check whether the line extraction loop already added the update buffer
+			if ( ( feof(readFile) ) && ( success_flag == 0 )  ) {
+				if (line_number == 0) { //empty file case
+					fputs(update_buffer, writeFile);
+				} else { //add padding with newlines until update line is reached
+					while(current_line < line_number) { 
+						fputs("\n", writeFile);
 						current_line++;
 					}
-					fprintf(writeFile, "%s\n", update_buffer);//write to target line
-				} else if ( current_line == line_number ) { 
-					// no contents within file
-					if (line_number == 0) {
-						fprintf(writeFile, "%s", update_buffer);//write to target line
-					} else {
-						fprintf(writeFile, "\n%s", update_buffer);//write to target line
-					}
-				} else {
-					fprintf(stderr, "Error: cannot write to file");
-					return 1;
+					fputs(update_buffer, writeFile);
 				}
 			}
 
-			remove(readFile);
-			rename(temporary_filename, FILE_NAME);
 
 			fclose(readFile);
 			fclose(writeFile);
