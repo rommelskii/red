@@ -90,6 +90,7 @@ int main(int argc, char *argv[]) {
 			char *line_buffer; 
 			char *temporary_filename = "temp.txt";
 			char *endptr;
+			int success_flag = 1; 
 			unsigned long line_number;
 			unsigned long current_line = 0;
 
@@ -146,6 +147,35 @@ int main(int argc, char *argv[]) {
 				}
 				current_line++;
 			}
+
+			printf("DONE ITERATING\nDEBUG: current_line: %lu\n", current_line);
+
+			if ( feof(readFile) ) {
+				if (current_line < line_number) {
+					//add padding until line is reached
+					while ( current_line < line_number ) { 
+						fprintf(writeFile, "\n");
+						current_line++;
+					}
+					fprintf(writeFile, "%s\n", update_buffer);//write to target line
+				} else if ( current_line == line_number ) { 
+					// no contents within file
+					if (line_number == 0) {
+						fprintf(writeFile, "%s", update_buffer);//write to target line
+					} else {
+						fprintf(writeFile, "\n%s", update_buffer);//write to target line
+					}
+				} else {
+					fprintf(stderr, "Error: cannot write to file");
+					return 1;
+				}
+			}
+
+			fclose(readFile);
+			fclose(writeFile);
+			free(update_buffer);
+			free(write_buffer);
+			free(line_buffer);
 
 			break;
 		}
