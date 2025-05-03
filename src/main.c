@@ -192,7 +192,7 @@ int main(int argc, char *argv[]) {
 						fputs("\n", writeFile);
 						current_line++;
 					}
-					fprintf(writeFile, "\n%s", update_buffer);
+					fprintf(writeFile, "%s", update_buffer);
 					printf("padding added\n");
 				}
 			}
