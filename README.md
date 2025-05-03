@@ -6,6 +6,7 @@
 <li>+makefile</li>
 <li>+flag parser</li>
 <li>+create functionality</li>
+<li>+update functionality</li>
 <hr>
 
 <p>April 15, 2025</p>
