@@ -195,6 +195,8 @@ int main(int argc, char *argv[]) {
 				}
 			}
 
+			remove(FILE_NAME);
+			rename(temporary_filename, FILE_NAME);
 
 			fclose(readFile);
 			fclose(writeFile);
