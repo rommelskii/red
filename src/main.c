@@ -3,6 +3,8 @@
 #include <string.h>
 
 #define BASE_10 10
+#define EXIT_ERR 1
+#define SUCCESS 0
 
 int parseFlag(const char *flag);
 
@@ -15,17 +17,17 @@ int main(int argc, char *argv[]) {
 	if ( argc == 1 ) {
 		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n");
 		fprintf(stderr, "Error: missing flag index");
-		return 1;
+		return EXIT_ERR;
 	}
 	if ( argc == 2 ) {
 		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n");
 		fprintf(stderr, "Error: lacking arguments");
-		return 1;
+		return EXIT_ERR;
 	}
 	if ( argc > 5 ) {
 		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n");
 		fprintf(stderr, "Error: too many arguments");
-		return 1;
+		return EXIT_ERR;
 	}
 
 	//extract flag
@@ -36,36 +38,70 @@ int main(int argc, char *argv[]) {
 	//entry points
 	switch (flagType) {
 		case 0: {
-			//first check if there is an existing file
-			FILE *pFile;
-			const char *FILE_NAME = argv[2];
-			pFile = fopen(FILE_NAME, "r");
-			if ( pFile != NULL ) {
-				printf("File '%s' exists!\n", FILE_NAME);
-				return 1; 
+			if ( (argc != 3) && (argc != 4) ) {
+				fprintf(stderr, "Error: incorrect parameters\n");
+				return EXIT_ERR;
 			}
-			fclose(pFile);
-			
-			pFile = fopen(FILE_NAME, "w");
 
-			if (pFile == NULL) { //check if file creation fails
-				perror("Failed to create file '%s'");
-				fclose(pFile);
-				return 1;
+			const size_t 	MAX_NAME_LENGTH 	= 2048;
+			const size_t	MAX_WRITE_LENGTH 	= 2048 * 5;
+			const size_t	MAX_LINE_NUMBER_LENGTH	= 9;
+
+			const size_t 	FILENAME_INDEX 	= 2;
+			const size_t	CONTENT_INDEX 	= 3;
+
+			const char* 	ARG_FILE_NAME 	= argv[FILENAME_INDEX];
+			const char*	ARG_CONTENT;
+
+			const size_t 	LEN_ARG_FILENAME = strlen(ARG_FILE_NAME);
+			size_t 		LEN_ARG_CONTENT;
+
+			char* 		filename_buf;	
+			char*		write_buf;
+
+			FILE*		write_file;
+
+
+			if (  LEN_ARG_FILENAME > MAX_NAME_LENGTH ) {
+				fprintf(stderr, "Error: filename limit reached");
+				return EXIT_ERR;
 			}
-			//check if there is content from argv
-			if (argc == 4) {
-				const char *CONTENT = argv[3];		
-				if ( fputs(CONTENT, pFile) == EOF ) { // do fputs() and check if it fails
-					perror("Error writing content");
-					fclose(pFile);
-					return 1;
+			
+			filename_buf = (char*)malloc( LEN_ARG_FILENAME * sizeof(char) );
+			strncpy(filename_buf, ARG_FILE_NAME, LEN_ARG_FILENAME);
+
+			//check first if file already exists
+			write_file = fopen(filename_buf, "r");
+			if (write_file != NULL) {
+				fprintf(stderr, "Error: file already exists\n");
+				return EXIT_ERR;
+			} 
+			fclose(write_file);
+			
+			//proceed creation
+			write_file = fopen(filename_buf, "w");
+			free(filename_buf);
+
+			if (argc == 4)  {
+				ARG_CONTENT = argv[CONTENT_INDEX];
+				LEN_ARG_CONTENT = strlen(ARG_CONTENT);
+
+				if (LEN_ARG_CONTENT > MAX_WRITE_LENGTH) {
+					fprintf(stderr, "Error: write buffer limit reached\n");
+					return EXIT_ERR;
+				}
+
+				write_buf = (char*)malloc( LEN_ARG_CONTENT * sizeof(char) );
+				strncpy(write_buf, ARG_CONTENT, LEN_ARG_CONTENT);
+				if ( fputs(write_buf, write_file) < 0 ) {
+					fprintf(stderr, "Error: cannot write to file\n");	
+					return EXIT_ERR;
 				}
 			}
 
-			fclose(pFile);
-			return 0;
-			break;
+			fclose(write_file);
+			free(write_buf);
+			return SUCCESS;	
 		}
 		case 1: {
 			FILE 		*writeFile;	
