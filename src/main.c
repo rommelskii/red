@@ -174,7 +174,7 @@ int main(int argc, char *argv[]) {
 			{ 
 				if (current_line == line_number) {
 					printf("Line number reached: %lu\n", current_line);
-					fputs(update_buffer, writeFile);
+					fprintf(writeFile, "%s\n", update_buffer);
 					success_flag = 1;
 				} else {
 					fputs(write_buffer, writeFile);
