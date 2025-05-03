@@ -188,7 +188,7 @@ int main(int argc, char *argv[]) {
 					fputs(update_buffer, writeFile);
 					printf("line number 0\n");
 				} else { //add padding with newlines until update line is reached
-					while(current_line < line_number) { 
+					while(current_line <= line_number) { 
 						fputs("\n", writeFile);
 						current_line++;
 					}
