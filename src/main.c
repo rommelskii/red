@@ -186,12 +186,14 @@ int main(int argc, char *argv[]) {
 			if ( ( feof(readFile) ) && ( success_flag == 0 )  ) {
 				if (line_number == 0) { //empty file case
 					fputs(update_buffer, writeFile);
+					printf("line number 0\n");
 				} else { //add padding with newlines until update line is reached
 					while(current_line < line_number) { 
 						fputs("\n", writeFile);
 						current_line++;
 					}
-					fputs(update_buffer, writeFile);
+					fprintf(writeFile, "\n%s", update_buffer);
+					printf("padding added\n");
 				}
 			}
 
