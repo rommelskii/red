@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define BASE_10 10
+#define EXIT_ERR 1
+#define SUCCESS 0
+
 int parseFlag(const char *flag);
 
 int main(int argc, char *argv[]) {
@@ -9,21 +13,21 @@ int main(int argc, char *argv[]) {
 	const size_t FLAG_BUFFER_SIZE = 3;
 	const size_t CONTENT_BUFFER_SIZE = 2048;
 	const size_t MAX_UPDATE_SIZE = 2048;
-	const int FLAG_INDEX;
+	const int FLAG_INDEX = 1;
 	if ( argc == 1 ) {
 		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n");
 		fprintf(stderr, "Error: missing flag index");
-		return 1;
+		return EXIT_ERR;
 	}
 	if ( argc == 2 ) {
 		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n");
 		fprintf(stderr, "Error: lacking arguments");
-		return 1;
+		return EXIT_ERR;
 	}
 	if ( argc > 5 ) {
 		fprintf(stderr, "Usage: red (-c -u -r) (file) (content)\n");
 		fprintf(stderr, "Error: too many arguments");
-		return 1;
+		return EXIT_ERR;
 	}
 
 	//extract flag
@@ -34,115 +38,173 @@ int main(int argc, char *argv[]) {
 	//entry points
 	switch (flagType) {
 		case 0: {
-			//first check if there is an existing file
-			FILE *pFile;
-			const char *FILE_NAME = argv[2];
-			pFile = fopen(FILE_NAME, "r");
-			if ( pFile != NULL ) {
-				printf("File '%s' exists!\n", FILE_NAME);
-				return 1; 
+			if ( (argc != 3) && (argc != 4) ) {
+				fprintf(stderr, "Error: incorrect parameters\n");
+				return EXIT_ERR;
 			}
-			fclose(pFile);
-			
-			pFile = fopen(FILE_NAME, "w");
 
-			if (pFile == NULL) { //check if file creation fails
-				perror("Failed to create file '%s'");
-				fclose(pFile);
-				return 1;
+			const size_t 	MAX_NAME_LENGTH 	= 2048;
+			const size_t	MAX_WRITE_LENGTH 	= 2048 * 5;
+			const size_t	MAX_LINE_NUMBER_LENGTH	= 9;
+
+			const size_t 	FILENAME_INDEX 	= 2;
+			const size_t	CONTENT_INDEX 	= 3;
+
+			const char* 	ARG_FILE_NAME 	= argv[FILENAME_INDEX];
+			const char*	ARG_CONTENT;
+
+			const size_t 	LEN_ARG_FILENAME = strlen(ARG_FILE_NAME);
+			size_t 		LEN_ARG_CONTENT;
+
+			char* 		filename_buf;	
+			char*		write_buf;
+
+			FILE*		write_file;
+
+
+			if (  LEN_ARG_FILENAME > MAX_NAME_LENGTH ) {
+				fprintf(stderr, "Error: filename limit reached");
+				return EXIT_ERR;
 			}
-			//check if there is content from argv
-			if (argc == 4) {
-				const char *CONTENT = argv[3];		
-				if ( fputs(CONTENT, pFile) == EOF ) { // do fputs() and check if it fails
-					perror("Error writing content");
-					fclose(pFile);
-					return 1;
+			
+			filename_buf = (char*)malloc( LEN_ARG_FILENAME * sizeof(char) );
+			strncpy(filename_buf, ARG_FILE_NAME, LEN_ARG_FILENAME);
+
+			//check first if file already exists
+			write_file = fopen(filename_buf, "r");
+			if (write_file != NULL) {
+				fprintf(stderr, "Error: file already exists\n");
+				return EXIT_ERR;
+			} 
+			fclose(write_file);
+			
+			//proceed creation
+			write_file = fopen(filename_buf, "w");
+			free(filename_buf);
+
+			if (argc == 4)  {
+				ARG_CONTENT = argv[CONTENT_INDEX];
+				LEN_ARG_CONTENT = strlen(ARG_CONTENT);
+
+				if (LEN_ARG_CONTENT > MAX_WRITE_LENGTH) {
+					fprintf(stderr, "Error: write buffer limit reached\n");
+					return EXIT_ERR;
+				}
+
+				write_buf = (char*)malloc( LEN_ARG_CONTENT * sizeof(char) );
+				strncpy(write_buf, ARG_CONTENT, LEN_ARG_CONTENT);
+				if ( fputs(write_buf, write_file) < 0 ) {
+					fprintf(stderr, "Error: cannot write to file\n");	
+					return EXIT_ERR;
 				}
 			}
 
-			fclose(pFile);
-			return 0;
-			break;
+			fclose(write_file);
+			free(write_buf);
+			return SUCCESS;	
 		}
 		case 1: {
-			if (argc < 5) {
-				fprintf(stderr, "Error: specify file, line number, and content");
+			FILE 		*writeFile;	
+			FILE 		*readFile;
+
+			const size_t 	UPDATE_STRING_INDEX = 4;
+			const size_t 	LINE_NUMBER_INDEX = 3;
+			const size_t 	FILE_NAME_INDEX = 2; 
+			const size_t 	MAX_BUFFER_LENGTH = 2048;
+			const size_t 	MAX_LINE_NUMBER_LENGTH = 9;
+
+			const char* 	UPDATE_STRING = argv[UPDATE_STRING_INDEX];
+			const char* 	LINE_NUMBER_STRING = argv[LINE_NUMBER_INDEX];
+			const char* 	FILE_NAME = argv[FILE_NAME_INDEX];
+			const size_t 	UPDATE_STRING_LENGTH = strlen(UPDATE_STRING);
+			const size_t 	LINE_NUMBER_LENGTH = strlen(LINE_NUMBER_STRING);
+			
+			char 		*write_buffer;
+			char 		*update_buffer; 
+			char 		*line_buffer; 
+			char 		*temporary_filename = "temp.txt";
+			char 		*endptr;
+			int 		 success_flag = 0; 
+			unsigned long    line_number;
+			unsigned long 	 current_line = 0;
+
+
+
+			//buffer length checks
+			if ( UPDATE_STRING_LENGTH > MAX_BUFFER_LENGTH ) {
+				fprintf(stderr, "Error: max content buffer length reached");
 				return 1;
 			}
-			// red -u mems.txt 0 a
-			const char *FILE_NAME = argv[2];
-			const long int LINE_NUMBER = strtol(argv[3], NULL, 0);
-			const char *content_argument = argv[4];
-			const char content_buffer[CONTENT_BUFFER_SIZE];
-			const char line_update_buffer[MAX_UPDATE_SIZE];
-			int current_line = 0;
-			int success = 1;
-
-			if ( sizeof(content_argument) > MAX_UPDATE_SIZE ) { //check if buffer size is exceeded
-				fprintf(stderr, "Error: maximum update size reached");
-				return 1;
-			}
-
-			strcpy(line_update_buffer, content_argument); //extract content argument to buffer
-								      //
-			fprintf(stdout, "%s\n", line_update_buffer);
-
-			FILE *inputFile;
-			FILE *tempFile;
-
-			inputFile = fopen(FILE_NAME, "r"); //check if file to be updated exists
-			if (inputFile == NULL) {
-				fprintf(stderr, "Error: file '%s' does not exist for updating", FILE_NAME);
-				return 1;
-			}
-
-			if ( fgetc(inputFile) == EOF ) {
-				fprintf(stderr, "Error: cannot edit an empty file");
-				return 1;
-			}
-
-			tempFile = fopen("temp.txt", "w");
-
-			if ( tempFile == NULL ) {
-				perror("Error: error in writing to file");
+			if ( LINE_NUMBER_LENGTH > MAX_LINE_NUMBER_LENGTH ) {
+				fprintf(stderr, "Error: max line buffer length reached");
 				return 1;
 			}
 
-			//begin extracting each line from original file
-			//populate until you reach the line to be update
-			//falls back to error if EOF is reached
-			while ( fgets(content_buffer, sizeof(content_buffer), inputFile) != NULL ) {
-				if (current_line == LINE_NUMBER) {
-					if ( fputs(line_update_buffer, tempFile) < 0 ) {
-						fprintf(stderr, "Error: error writing content to file");
-						success = 0;
-					}
-					break;
+			//allocate sizes to buffers
+			write_buffer = (char *)malloc(MAX_BUFFER_LENGTH * sizeof(char));
+			update_buffer = (char *)malloc(UPDATE_STRING_LENGTH * sizeof(char));
+			line_buffer = (char *)malloc(LINE_NUMBER_LENGTH * sizeof(char));
+
+
+			//copy arguments to respective buffers
+			strncpy(update_buffer, UPDATE_STRING, strlen(argv[UPDATE_STRING_INDEX]));
+			strncpy(line_buffer, LINE_NUMBER_STRING, strlen(argv[LINE_NUMBER_INDEX]));
+
+			line_number = strtoul(line_buffer, &endptr, 10); //transform line buffer to line number
+									 //
+			printf("(Update buffer: %s, Line buffer: %s, Line number: %lu)\n", update_buffer, line_buffer, line_number);
+
+			//file I/O
+			readFile = fopen(FILE_NAME, "r");
+			writeFile = fopen(temporary_filename, "w");
+
+			if ( readFile == NULL ) {
+				fprintf(stderr, "Error: %s not found", FILE_NAME);
+				return 1;
+			}
+			if ( writeFile == NULL ) {
+				fprintf(stderr, "Error: error creating temp file");
+				return 1;
+			}
+
+			//begin line extraction
+			while (
+				fgets(write_buffer, sizeof(write_buffer), readFile)
+			      )
+			{ 
+				if (current_line == line_number) {
+					printf("Line number reached: %lu\n", current_line);
+					fputs(update_buffer, writeFile);
+					success_flag = 1;
 				} else {
-					fputs(content_buffer, tempFile);
+					fputs(write_buffer, writeFile);
+				}
+				current_line++;
+			}
+
+			// success flag is used to check whether the line extraction loop already added the update buffer
+			if ( ( feof(readFile) ) && ( success_flag == 0 )  ) {
+				if (line_number == 0) { //empty file case
+					fputs(update_buffer, writeFile);
+					printf("line number 0\n");
+				} else { //add padding with newlines until update line is reached
+					while(current_line < line_number) { 
+						fputs("\n", writeFile);
+						current_line++;
+					}
+					fprintf(writeFile, "\n%s", update_buffer);
+					printf("padding added\n");
 				}
 			}
 
+			remove(FILE_NAME);
+			rename(temporary_filename, FILE_NAME);
 
-			if ( feof(inputFile) ) {
-				if (current_line == LINE_NUMBER) {
-					fputs(line_update_buffer, tempFile);
-				} else if ( current_line < LINE_NUMBER ) {
-					fprintf(stderr, "Error: line exceeds existing file buffer");
-					success = 0;
-				}
-			}
-
-
-			if (success) {
-				fprintf(stdout, "File '%s' updated sucessfully at line: %li", FILE_NAME, LINE_NUMBER);	
-				fclose(tempFile);
-				fclose(inputFile);
-				return 0;
-			} else {
-				return 1;
-			}
+			fclose(readFile);
+			fclose(writeFile);
+			free(update_buffer);
+			free(write_buffer);
+			free(line_buffer);
 
 			break;
 		}
@@ -176,3 +238,4 @@ int parseFlag(const char *flag) {
 	// fallback to 1 if no valid flag
 	return -1;
 }
+

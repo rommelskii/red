@@ -1,0 +1,27 @@
+case 1: empty file
+0 
+1 
+2
+3
+
+action: (eof and target_line == 0)
+
+case 2:
+0 hello
+1 
+2
+3
+
+(eof and target_line != 0)
+
+
+case 3:
+0 hello
+1 
+2
+3 woo
+
+while current<target
+do 
+	add \n
+	current++
