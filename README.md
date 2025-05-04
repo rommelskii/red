@@ -2,7 +2,6 @@
 <h3>primitive CLI-based file creator and editor</h3>
 
 <hr>
-<h3>Branch: remove</h3>
 <p>This branch is for the remove (-r) entrypoint.</p>
 <hr>
 
