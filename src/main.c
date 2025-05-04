@@ -262,6 +262,8 @@ int main(int argc, char *argv[]) {
 			const size_t	LEN_FILENAME		= strlen(ARG_FILENAME);	
 			const size_t	LEN_LINE_NUMBER		= strlen(ARG_LINE_NUMBER);	
 
+			int success = 0;
+
 			char* 		write_buffer;
 			char* 		filename_buffer;
 			char* 		line_number_buffer;
@@ -320,9 +322,33 @@ int main(int argc, char *argv[]) {
 				fgets(write_buffer, MAX_BUFFER_SIZE, read_file)
 			      )
 			{ 
+				if (current_line == target_line) {
+					success = 1;
+				}
+				else {
+					if ( fputs(write_buffer, write_file) < 0 ) {
+						fprintf(stderr, "Error: cannot delete file\n");
+						return EXIT_ERR;
+					}
+				}
+				current_line++;
 			}
 
-			
+			free(write_buffer); //immediately free the write buffer after use
+
+			if ( (feof(read_file)) && (success == 0) ) {
+				fprintf(stderr, "Error: line not found or file is empty\n");
+				return EXIT_ERR;
+			}
+
+
+			remove(ARG_FILENAME);
+			rename(temp_filename, ARG_FILENAME);
+			fclose(read_file);
+			fclose(write_file);
+
+			printf("Line %lu successfully deleted\n", target_line);
+			return SUCCESS;
 
 			break;
 		case -1:
