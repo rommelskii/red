@@ -221,7 +221,135 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 		case 2:
-			printf("-r detected");
+			// red -r hello.txt 0
+			// argc always 4
+			if (argc != 4) {
+				fprintf(stderr, "Error: line needed\n");
+				return EXIT_ERR;
+			} else if ( argc > 4 ) {
+				fprintf(stderr, "Error: too many arguments for remove\n");
+				return EXIT_ERR;
+			}
+
+			//case 1: empty file
+			//case 2: exceeding lines
+			//case 3: normal
+
+			/*
+			 * program logic:
+			 * 	- guards
+			 *	- create read and temp
+			 *	- copy 
+			 *	- if eof, then case 1 or 2
+			 *	- if success, do not write the current line and proceed as 
+			 *        usual
+			 *      - end
+			 */
+
+			FILE*		read_file;
+			FILE*		write_file;
+
+			const size_t 	FILENAME_INDEX 		=  2;
+			const size_t 	LINE_NUMBER_INDEX 	=  3;
+
+			const size_t	MAX_FILENAME_SIZE	= 2048;
+			const size_t	MAX_BUFFER_SIZE		= 2048*5;
+			const size_t 	MAX_LINE_NUMBER_SIZE 	= 9;
+
+			const char*	ARG_FILENAME		= argv[FILENAME_INDEX];
+			const char*	ARG_LINE_NUMBER 	= argv[LINE_NUMBER_INDEX];
+
+			const size_t	LEN_FILENAME		= strlen(ARG_FILENAME);	
+			const size_t	LEN_LINE_NUMBER		= strlen(ARG_LINE_NUMBER);	
+
+			int success = 0;
+
+			char* 		write_buffer;
+			char* 		filename_buffer;
+			char* 		line_number_buffer;
+			char* 		temp_filename		= "temp.txt";
+			char*		endptr_for_strtoul;
+			
+			unsigned long	target_line;
+			unsigned long	current_line		= 0;
+
+
+			//buffer checks
+
+			if ( LEN_FILENAME > MAX_FILENAME_SIZE ) {
+				fprintf(stderr, "Error: file name size too large\n");	
+				return EXIT_ERR;
+			}
+			if ( LEN_LINE_NUMBER > MAX_LINE_NUMBER_SIZE ) {
+				fprintf(stderr, "Error: line number too large\n");	
+				return EXIT_ERR;
+			}
+
+			//allocate size to buffers and extract from arguments
+			filename_buffer = (char*)malloc(LEN_FILENAME*sizeof(char));
+			line_number_buffer = (char*)malloc(LEN_LINE_NUMBER*sizeof(char));
+			write_buffer = (char*)malloc(MAX_BUFFER_SIZE*sizeof(char));
+			strncpy(filename_buffer, ARG_FILENAME, LEN_FILENAME);
+			strncpy(line_number_buffer, ARG_LINE_NUMBER, LEN_LINE_NUMBER);
+
+			if ( isNumber(line_number_buffer) < 0 ) {
+				fprintf(stderr, "Error: line number provided is not a number\n");	
+				return EXIT_ERR;
+			}
+
+			//transform to unsigned long then free line num buffer
+			target_line = strtoul(line_number_buffer, &endptr_for_strtoul, 10);
+			free(line_number_buffer);
+
+			//check first if file exists then create temp file
+			read_file = fopen(filename_buffer, "r");
+			if (read_file == NULL) {
+				fprintf(stderr, "Error: file does not exist\n");
+				return EXIT_ERR;
+			}
+			write_file = fopen(temp_filename, "w");
+			if (write_file == NULL) {
+				fprintf(stderr, "Error: cannot write to temporary file\n");
+				return EXIT_ERR;
+			}
+
+			//free filename after file io 
+			free(filename_buffer);
+
+			//begin reading
+			
+			while (
+				fgets(write_buffer, MAX_BUFFER_SIZE, read_file)
+			      )
+			{ 
+				if (current_line == target_line) {
+					success = 1;
+				}
+				else {
+					if ( fputs(write_buffer, write_file) < 0 ) {
+						fprintf(stderr, "Error: cannot delete file\n");
+						return EXIT_ERR;
+					}
+				}
+				current_line++;
+			}
+
+			free(write_buffer); //immediately free the write buffer after use
+
+			if ( (feof(read_file)) && (success == 0) ) {
+				fprintf(stderr, "Error: line not found or file is empty\n");
+				return EXIT_ERR;
+			}
+
+
+			remove(ARG_FILENAME);
+			rename(temp_filename, ARG_FILENAME);
+			fclose(read_file);
+			fclose(write_file);
+
+			printf("Line %lu successfully deleted\n", target_line);
+			return SUCCESS;
+
 			break;
 		case -1:
 			printf("invalid flag!");
