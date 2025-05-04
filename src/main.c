@@ -301,6 +301,13 @@ int main(int argc, char *argv[]) {
 				return EXIT_ERR;
 			}
 
+			//begin reading
+			
+			while (
+				fgets(write_buffer, MAX_BUFFER_SIZE, read_file);
+			      )
+			{ 
+			}
 
 			
 
