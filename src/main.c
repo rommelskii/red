@@ -265,6 +265,7 @@ int main(int argc, char *argv[]) {
 			char* write_buffer;
 			char* filename_buffer;
 			char* line_number_buffer;
+			char* temp_filename;
 
 
 			//buffer checks
@@ -278,7 +279,19 @@ int main(int argc, char *argv[]) {
 				return EXIT_ERR;
 			}
 
+			//allocate size to buffers and extract from arguments
+			filename_buffer = (char*)malloc(LEN_FILENAME*sizeof(char));
+			line_number_buffer = (char*)malloc(LEN_LINE_NUMBER*sizeof(char));
+			strncpy(filename_buffer, ARG_FILENAME, LEN_FILENAME);
+			strncpy(line_number_buffer, ARG_LINE_NUMBER, LEN_LINE_NUMBER);
 
+			//check first if file exists then proceed reading
+			readFile = fopen(filename_buffer, "r");
+			if (readFile == NULL) {
+				fprintf(stderr, "Error: file does not exist\n");
+				return EXIT_ERR;
+			}
+			
 
 			break;
 		case -1:
