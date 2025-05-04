@@ -294,7 +294,9 @@ int main(int argc, char *argv[]) {
 				return EXIT_ERR;
 			}
 
-			target_line = strtoul
+			//transform to unsigned long then free line num buffer
+			target_line = strtoul(line_number_buffer);
+			free(line_number_buffer);
 
 			//check first if file exists then create temp file
 			read_file = fopen(filename_buffer, "r");
@@ -308,9 +310,8 @@ int main(int argc, char *argv[]) {
 				return EXIT_ERR;
 			}
 
-			//free filename and line number buffers
+			//free filename after file io 
 			free(filename_buffer);
-			free(line_number_buffer);
 
 			//begin reading
 			
