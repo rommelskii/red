@@ -104,6 +104,11 @@ int main(int argc, char *argv[]) {
 			return SUCCESS;	
 		}
 		case 1: {
+			if ( (argc != 5) && (argc != 6) ) {
+				fprintf(stderr, "Error: lacking update line or content\n");
+				return EXIT_ERR;
+			}
+
 			FILE 		*writeFile;	
 			FILE 		*readFile;
 
