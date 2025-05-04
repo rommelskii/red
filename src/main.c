@@ -246,7 +246,23 @@ int main(int argc, char *argv[]) {
 			 *      - end
 			 */
 
+			FILE*		read_file;
+			FILE*		write_file;
 
+			const size_t 	FILENAME_INDEX 		=  2;
+			const size_t 	LINE_NUMBER_INDEX 	=  3;
+
+			const size_t	MAX_FILENAME_SIZE	= 2048;
+			const size_t	MAX_BUFFER_SIZE		= 2048*5;
+
+			const char*	ARG_FILENAME		= argv[FILENAME_INDEX];
+			const char*	ARG_LINE_NUMBER 	= argv[LINE_NUMBER_INDEX];
+
+			const size_t	LEN_FILENAME		= strlen(ARG_FILENAME);	
+			const size_t	LEN_LINE_NUMBER		= strlen(ARG_LINE_NUMBER);	
+
+			char* write_buffer;
+			char* filename_buffer;
 
 			break;
 		case -1:
