@@ -2,11 +2,8 @@
 <h3>primitive CLI-based file creator and editor</h3>
 
 <hr>
-<h3>Branch: main</h3>
-<li>+makefile</li>
-<li>+flag parser</li>
-<li>+create functionality</li>
-<li>+update functionality</li>
+<h3>Branch: remove</h3>
+<p>This branch is for the remove (-r) entrypoint.</p>
 <hr>
 
 <p>April 15, 2025</p>
