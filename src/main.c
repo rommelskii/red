@@ -264,6 +264,21 @@ int main(int argc, char *argv[]) {
 
 			char* write_buffer;
 			char* filename_buffer;
+			char* line_number_buffer;
+
+
+			//buffer checks
+
+			if ( LEN_FILENAME > MAX_FILENAME_SIZE ) {
+				fprintf(stderr, "Error: file name size too large\n");	
+				return EXIT_ERR;
+			}
+			if ( LEN_LINE_NUMBER > MAX_LINE_NUMBER_SIZE ) {
+				fprintf(stderr, "Error: line number too large\n");	
+				return EXIT_ERR;
+			}
+
+
 
 			break;
 		case -1:
