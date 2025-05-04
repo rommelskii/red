@@ -254,6 +254,7 @@ int main(int argc, char *argv[]) {
 
 			const size_t	MAX_FILENAME_SIZE	= 2048;
 			const size_t	MAX_BUFFER_SIZE		= 2048*5;
+			const size_t 	MAX_LINE_NUMBER_SIZE 	= 9;
 
 			const char*	ARG_FILENAME		= argv[FILENAME_INDEX];
 			const char*	ARG_LINE_NUMBER 	= argv[LINE_NUMBER_INDEX];
