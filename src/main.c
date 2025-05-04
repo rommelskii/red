@@ -262,10 +262,10 @@ int main(int argc, char *argv[]) {
 			const size_t	LEN_FILENAME		= strlen(ARG_FILENAME);	
 			const size_t	LEN_LINE_NUMBER		= strlen(ARG_LINE_NUMBER);	
 
-			char* write_buffer;
-			char* filename_buffer;
-			char* line_number_buffer;
-			char* temp_filename;
+			char* 		write_buffer;
+			char* 		filename_buffer;
+			char* 		line_number_buffer;
+			char* 		temp_filename		= "temp.txt";
 
 
 			//buffer checks
