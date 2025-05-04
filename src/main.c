@@ -285,12 +285,19 @@ int main(int argc, char *argv[]) {
 			strncpy(filename_buffer, ARG_FILENAME, LEN_FILENAME);
 			strncpy(line_number_buffer, ARG_LINE_NUMBER, LEN_LINE_NUMBER);
 
-			//check first if file exists then proceed reading
+			//check first if file exists then create temp file
 			readFile = fopen(filename_buffer, "r");
 			if (readFile == NULL) {
 				fprintf(stderr, "Error: file does not exist\n");
 				return EXIT_ERR;
 			}
+			writeFile = fopen(temp_filename, "w");
+			if (writeFile == NULL) {
+				fprintf(stderr, "Error: cannot write to temporary file\n");
+				return EXIT_ERR;
+			}
+
+
 			
 
 			break;
