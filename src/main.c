@@ -227,7 +227,7 @@ int main(int argc, char *argv[]) {
 			printf("invalid flag!");
 			break;
 	}
-	return 0;	
+	return SUCCESS;	
 }
 
 int parseFlag(const char *flag) {
