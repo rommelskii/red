@@ -267,8 +267,8 @@ int main(int argc, char *argv[]) {
 			char* 		line_number_buffer;
 			char* 		temp_filename		= "temp.txt";
 			
-			int		target_line;
-			int		current_line		= 0;
+			unsigned long	target_line;
+			unsigned long	current_line		= 0;
 
 
 			//buffer checks
@@ -288,6 +288,13 @@ int main(int argc, char *argv[]) {
 			write_buffer = (char*)malloc(MAX_BUFFER_SIZE*sizeof(char));
 			strncpy(filename_buffer, ARG_FILENAME, LEN_FILENAME);
 			strncpy(line_number_buffer, ARG_LINE_NUMBER, LEN_LINE_NUMBER);
+
+			if ( isNumber(line_number_buffer) < 0 ) {
+				fprintf(stderr, "Error: line number provided is not a number\n");	
+				return EXIT_ERR;
+			}
+
+			target_line = strtoul
 
 			//check first if file exists then create temp file
 			read_file = fopen(filename_buffer, "r");
