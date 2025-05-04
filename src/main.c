@@ -231,6 +231,23 @@ int main(int argc, char *argv[]) {
 				return EXIT_ERR;
 			}
 
+			//case 1: empty file
+			//case 2: exceeding lines
+			//case 3: normal
+
+			/*
+			 * program logic:
+			 * 	- guards
+			 *	- create read and temp
+			 *	- copy 
+			 *	- if eof, then case 1 or 2
+			 *	- if success, do not write the current line and proceed as 
+			 *        usual
+			 *      - end
+			 */
+
+
+
 			break;
 		case -1:
 			printf("invalid flag!");
