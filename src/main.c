@@ -282,6 +282,7 @@ int main(int argc, char *argv[]) {
 			//allocate size to buffers and extract from arguments
 			filename_buffer = (char*)malloc(LEN_FILENAME*sizeof(char));
 			line_number_buffer = (char*)malloc(LEN_LINE_NUMBER*sizeof(char));
+			write_buffer = (char*)malloc(MAX_BUFFER_SIZE*sizeof(char));
 			strncpy(filename_buffer, ARG_FILENAME, LEN_FILENAME);
 			strncpy(line_number_buffer, ARG_LINE_NUMBER, LEN_LINE_NUMBER);
 			//free filename and line number buffers
@@ -299,7 +300,6 @@ int main(int argc, char *argv[]) {
 				fprintf(stderr, "Error: cannot write to temporary file\n");
 				return EXIT_ERR;
 			}
-
 
 
 			
