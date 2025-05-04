@@ -221,7 +221,16 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 		case 2:
-			printf("-r detected");
+			// red -r hello.txt 0
+			// argc always 4
+			if (argc != 4) {
+				fprintf(stderr, "Error: line needed\n");
+				return EXIT_ERR;
+			} else if ( argc > 4 ) {
+				fprintf(stderr, "Error: too many arguments for remove\n");
+				return EXIT_ERR;
+			}
+
 			break;
 		case -1:
 			printf("invalid flag!");
