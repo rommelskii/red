@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define BASE_10 10
 #define EXIT_ERR 1
 #define SUCCESS 0
 
 int parseFlag(const char *flag);
+int isNumber(char *str);
 
 int main(int argc, char *argv[]) {
 	//housekeeping
@@ -155,8 +157,13 @@ int main(int argc, char *argv[]) {
 			strncpy(update_buffer, UPDATE_STRING, strlen(argv[UPDATE_STRING_INDEX]));
 			strncpy(line_buffer, LINE_NUMBER_STRING, strlen(argv[LINE_NUMBER_INDEX]));
 
+			if ( isNumber(line_buffer) < 0 ) {
+				fprintf(stderr, "Error: line number provided is not a number\n");	
+				return EXIT_ERR;
+			}
+
 			line_number = strtoul(line_buffer, &endptr, 10); //transform line buffer to line number
-									 //
+
 			printf("(Update buffer: %s, Line buffer: %s, Line number: %lu)\n", update_buffer, line_buffer, line_number);
 
 			//file I/O
@@ -244,3 +251,20 @@ int parseFlag(const char *flag) {
 	return -1;
 }
 
+int isNumber(char *str) {
+	const size_t STRING_LENGTH = strlen(str); 
+	if (STRING_LENGTH == 0) {
+		return -1;
+	}
+	char *iter = str;
+	char *endptr = str+STRING_LENGTH;
+
+	while ( iter != endptr ) {
+		if ( isdigit(*iter) == 0 ) {
+			return -1;
+		}
+		iter++;
+	}
+
+	return 1;
+}
