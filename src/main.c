@@ -266,6 +266,7 @@ int main(int argc, char *argv[]) {
 			char* 		filename_buffer;
 			char* 		line_number_buffer;
 			char* 		temp_filename		= "temp.txt";
+			char*		endptr_for_strtoul;
 			
 			unsigned long	target_line;
 			unsigned long	current_line		= 0;
@@ -295,7 +296,7 @@ int main(int argc, char *argv[]) {
 			}
 
 			//transform to unsigned long then free line num buffer
-			target_line = strtoul(line_number_buffer);
+			target_line = strtoul(line_number_buffer, &endptr_for_strtoul, 10);
 			free(line_number_buffer);
 
 			//check first if file exists then create temp file
@@ -316,7 +317,7 @@ int main(int argc, char *argv[]) {
 			//begin reading
 			
 			while (
-				fgets(write_buffer, MAX_BUFFER_SIZE, read_file);
+				fgets(write_buffer, MAX_BUFFER_SIZE, read_file)
 			      )
 			{ 
 			}
