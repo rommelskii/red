@@ -266,6 +266,9 @@ int main(int argc, char *argv[]) {
 			char* 		filename_buffer;
 			char* 		line_number_buffer;
 			char* 		temp_filename		= "temp.txt";
+			
+			int		target_line;
+			int		current_line		= 0;
 
 
 			//buffer checks
@@ -285,9 +288,6 @@ int main(int argc, char *argv[]) {
 			write_buffer = (char*)malloc(MAX_BUFFER_SIZE*sizeof(char));
 			strncpy(filename_buffer, ARG_FILENAME, LEN_FILENAME);
 			strncpy(line_number_buffer, ARG_LINE_NUMBER, LEN_LINE_NUMBER);
-			//free filename and line number buffers
-			free(filename_buffer);
-			free(line_number_buffer);
 
 			//check first if file exists then create temp file
 			read_file = fopen(filename_buffer, "r");
@@ -300,6 +300,10 @@ int main(int argc, char *argv[]) {
 				fprintf(stderr, "Error: cannot write to temporary file\n");
 				return EXIT_ERR;
 			}
+
+			//free filename and line number buffers
+			free(filename_buffer);
+			free(line_number_buffer);
 
 			//begin reading
 			
